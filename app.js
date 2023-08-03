@@ -3,6 +3,8 @@ const path = require('path');
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const methodOverride = require('method-override');
+const engine = require('ejs-mate')
+
 
 //connect to mongo database
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp',{
@@ -18,6 +20,7 @@ db.once("open", () =>{
 
 //start express app
 const app = express();
+app.engine('ejs', engine);
 
 //middleware setup
 app.set('view engine', 'ejs');
@@ -26,6 +29,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({extended: true}))
 //method override setup
 app.use(methodOverride('_method'));
+//serving public files
+//app.use(express.static("public"))
+//app.use("/static", express.static(path.join(__dirname, "public")))
 
 //Home route
 app.get('/', (_req, res) =>{
