@@ -17,7 +17,7 @@ db.once("open", () =>{
 
 //making new titles
 const sample = (array) =>{
-    return array[Math.floor(Math.random()* array.length)];
+    return array[Math.floor(Math.random() * array.length)];
 };
 
 //making new locations
@@ -25,9 +25,13 @@ const seedDB = async () =>{
     await Campground.deleteMany({});
     for(let i = 0; i < 50; i++){
         const random1000 = Math.floor(Math.random() * 1000);
+        const price = Math.floor(Math.random() * 20) + 10;
         const camp = new Campground({
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
-            title: `${sample(descriptors)} ${sample(places)}`
+            title: `${sample(descriptors)} ${sample(places)}`,
+            image: 'https://source.unsplash.com/collection/349236',
+            description: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deleniti impedit ipsa repellendus nesciunt earum omnis tempora ab harum. Sunt voluptate nobis aliquid doloremque nam ratione repudiandae atque ad reprehenderit laborum?',
+            price 
         })
         await camp.save();
     }
