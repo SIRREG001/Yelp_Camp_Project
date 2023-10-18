@@ -63,15 +63,9 @@ app.get('/campgrounds/:id', async (req, res) => {
 
 //updating campground
 app.get('/campgrounds/:id/edit', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const campground = await Campground.findById(id);
-        console.log(campground);
-        res.render('campgrounds/edit', { campground })
-    }
-    catch (error) {
-        console.log(error)
-    }
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    res.render('campgrounds/edit', { campground })
 })
 app.put('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
