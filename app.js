@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const methodOverride = require('method-override');
 const engine = require('ejs-mate')
+const catchAsync = require('./utilities/catchAsync');
 
 
 //connect to mongo database
@@ -34,52 +35,57 @@ app.use(methodOverride('_method'));
 //app.use("/static", express.static(path.join(__dirname, "public")))
 
 //Home route
-app.get('/', (_req, res) => {
+app.get('/', (req, res) => {
     res.render('home')
 });
 
 //view all camps
-app.get('/campgrounds', async (_req, res) => {
+app.get('/campgrounds', catchAsync(async (req, res) => {
     const campgrounds = await Campground.find({});
     res.render('campgrounds/index', { campgrounds })
-})
+}))
 
 //creating new campground
-app.get('/campgrounds/new', (_req, res) => {
+app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
 })
-app.post('/campgrounds', async (req, res) => {
+app.post('/campgrounds', catchAsync(async (req, res, next) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`)
-})
+}))
 
 //show a campground
-app.get('/campgrounds/:id', async (req, res) => {
+app.get('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render('campgrounds/show', { campground });
-})
+}))
 
 //updating campground
-app.get('/campgrounds/:id/edit', async (req, res) => {
+app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     res.render('campgrounds/edit', { campground })
-})
-app.put('/campgrounds/:id', async (req, res) => {
+}))
+app.put('/campgrounds/:id', catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${campground._id}`);
-})
+}))
 
 //Deleting campground
-app.delete('/campgrounds/:id', async (req, res) => {
+app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
-})
+}))
 
+//Handling error
+app.use((err, req, res, next) => {
+    res.send("There is an error somewhere!")
+
+})
 app.listen(3000, () => {
     console.log("App is listening to port 3000!!")
 })
