@@ -4,7 +4,9 @@ const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const methodOverride = require('method-override');
 const engine = require('ejs-mate')
+const ExpressError = require('./utilities/ExpressError'); 
 const catchAsync = require('./utilities/catchAsync');
+const Joi = require('joi');
 
 
 //connect to mongo database
@@ -50,6 +52,7 @@ app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
 })
 app.post('/campgrounds', catchAsync(async (req, res, next) => {
+    if(!req.body.campground) throw new ExpressError('Invalid Campgroung Data', 400);
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`)
@@ -81,11 +84,20 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     res.redirect('/campgrounds');
 }))
 
-//Handling error
-app.use((err, req, res, next) => {
-    res.send("There is an error somewhere!")
 
+//Handling error
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404))
+    
 })
+
+app.use((err, req, res, next) => {
+    const {statusCode = 500} = err;
+    if(!err.message) err.message = 'Something went wrong';
+    res.status(statusCode).render('error', {err});
+})
+
+
 app.listen(3000, () => {
     console.log("App is listening to port 3000!!")
 })
