@@ -7,6 +7,7 @@ const engine = require('ejs-mate')
 const ExpressError = require('./utilities/ExpressError'); 
 const catchAsync = require('./utilities/catchAsync');
 const {campgroundSchema} = require('./schemas.js');
+const Review = require('./models/review');
 
 
 //connect to mongo database
@@ -95,6 +96,14 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     res.redirect('/campgrounds');
 }))
 
+app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    review.save();
+    campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+}))
 
 //Handling error
 app.all('*', (req, res, next) => {
