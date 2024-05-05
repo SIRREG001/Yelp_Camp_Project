@@ -6,7 +6,7 @@ const methodOverride = require('method-override');
 const engine = require('ejs-mate')
 const ExpressError = require('./utilities/ExpressError'); 
 const catchAsync = require('./utilities/catchAsync');
-const {campgroundSchema} = require('./schemas.js');
+const {campgroundSchema, reviewSchema} = require('./schemas.js');
 const Review = require('./models/review');
 
 
@@ -48,6 +48,16 @@ const validateCampground = (req, res, next) => {
     
 }
 
+const validateReview = (req, res, next) => {
+    const {error} = reviewSchema.validate(req.body);
+    if(error){
+        const errorMessage = error.details.map(element => element.message).join(',')
+        throw new ExpressError(errorMessage, 400)
+    }else{
+        next();
+    }
+}
+
 //Home route
 app.get('/', (req, res) => {
     res.render('home')
@@ -72,8 +82,8 @@ app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) =
 
 //show a campground
 app.get('/campgrounds/:id', catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
+    const campground = await Campground.findById(req.params.id).populate('reviews');
+    console.log(campground)
     res.render('campgrounds/show', { campground });
 }))
 
@@ -96,7 +106,7 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     res.redirect('/campgrounds');
 }))
 
-app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => {
+app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
     campground.reviews.push(review);
