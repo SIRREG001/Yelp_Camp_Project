@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const engine = require('ejs-mate')
 const session = require('express-session');
+const flash = require('connect-flash');
 const ExpressError = require('./utilities/ExpressError'); 
 const campgrounds =  require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
@@ -45,7 +46,13 @@ const sessionConfig = {
     }
 }
 app.use(session(sessionConfig))
+app.use(flash());
 
+app.use((req, res, next) =>{
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 
 
