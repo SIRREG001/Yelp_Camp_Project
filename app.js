@@ -20,6 +20,7 @@ const localStrategy = require('passport-local');
 const User = require('./models/user');
 
 
+const mongoSanitize = require('express-mongo-sanitize')
 
 //connect to mongo database
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp', {
@@ -46,6 +47,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'));
 //serving public files
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(mongoSanitize())
+
 
 const sessionConfig = {
     secret: 'thisshouldbesecret',
@@ -70,7 +73,7 @@ passport.deserializeUser(User.deserializeUser());
 
 
 app.use((req, res, next) =>{
-    console.log(req.session)
+    console.log(req.body)
     res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
