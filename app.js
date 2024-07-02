@@ -4,6 +4,7 @@ if(process.env.NODE_ENV !== "production"){
 
 
 
+
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -19,12 +20,13 @@ const passport = require('passport');
 const localStrategy = require('passport-local');
 const User = require('./models/user');
 const helmet = require('helmet')
+const mongoSanitize = require('express-mongo-sanitize');
+const MongoStore = require('connect-mongo')(session);
 
-
-const mongoSanitize = require('express-mongo-sanitize')
+const dbUrl=process.env.DB_URL || 'mongodb://127.0.0.1:27017/yelp-camp';
 
 //connect to mongo database
-mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp', {
+mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -50,10 +52,25 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(mongoSanitize())
 
+const secret = process.env.SECRET || 'thisshouldbesecret';
+
+const store = new MongoStore({
+    url: dbUrl,
+    secret: secret,
+    touchAfter: 24 * 60 * 60,
+    resave: true,
+    saveUninitialized: false
+});
+store.on("error", function(e){
+    console.log("SESSION STORE ERROR", e)
+});
+
+
 
 const sessionConfig = {
+    store: store,
     name:'session',
-    secret: 'thisshouldbesecret',
+    secret: secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
