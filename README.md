@@ -9,7 +9,7 @@
 * Search campground by name or location
 * Sort campgrounds by highest rating, most reviewed, lowest price, or highest price
 
-### Application deployed on Heroku: <https://yelpcamp-application-e1e4f154ed87.herokuapp.com/ >
+### Application deployed on Heroku: https://yelpcamp-application-e1e4f154ed87.herokuapp.com/
 
 ## Application screenshots: <br/>
 ![Home Page screenshot][home-screenshot]
